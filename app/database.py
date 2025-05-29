@@ -1,4 +1,4 @@
-from app import db
+from app import db,login_manager
 from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import ForeignKey
@@ -8,8 +8,10 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import WriteOnlyMapped
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager,UserMixin
 
-class User(db.Model):
+class User(db.Model,UserMixin):
     __tablename__ = "user_account"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -17,8 +19,20 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(String(250),unique=True,nullable=False)
     posts: WriteOnlyMapped['Post'] = relationship(back_populates='author')
 
+    def set_password(self,password):
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self,password):
+        return check_password_hash(self.password_hash,password)
+
+
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, name={self.login!r}, fullname={self.password!r})"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User,int(user_id))
+
 class Post(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     body: Mapped[str] = mapped_column(String(80),unique=True,index=True)

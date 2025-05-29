@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<a href="{{ url_for('register') }}">Регистрация</a>
+{% if current_user.is_ananymous %}
 <a href="{{ url_for('login') }}">Авторизация</a>
+<a href="{{ url_for('index') }}">Выйти из аккаунта</a>
+{% else %}
+<a href="{{ url_for('register') }}">Регистрация</a>
+{% endif %}
+
+<h1>Привет {{ current_user.username }}</h1>
+{% for post in posts %}
+    <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
+    {% endfor %}
 {% endblock %}
