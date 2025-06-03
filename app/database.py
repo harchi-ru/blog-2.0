@@ -14,16 +14,16 @@ from flask_login import LoginManager,UserMixin
 class User(db.Model,UserMixin):
     __tablename__ = "user_account"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True,autoincrement=True)
     login: Mapped[str] = mapped_column(String(30),unique=True,nullable=False)
     password: Mapped[str] = mapped_column(String(250),unique=True,nullable=False)
     posts: WriteOnlyMapped['Post'] = relationship(back_populates='author')
 
     def set_password(self,password):
-        self.password_hash = generate_password_hash(password)
+        self.password = generate_password_hash(password)
     
     def check_password(self,password):
-        return check_password_hash(self.password_hash,password)
+        return check_password_hash(self.password,password)
 
 
     def __repr__(self) -> str:
