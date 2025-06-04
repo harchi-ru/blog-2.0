@@ -37,7 +37,7 @@ def login():
             return redirect(url_for("login"))
         login_user(user,form.remember_me.data)
         return redirect(url_for("index"))
-    return render_template("Login.html",form=form)
+    return render_template("login.html",form=form)
 
 
 
@@ -46,7 +46,12 @@ def log_out():
     logout_user()
     return redirect(url_for("index"))
 
-@app.route('/post')
+@app.route("/profile/<username>")
 @login_required
-def post():
-    pass
+def profile(username):
+    user = db.first_or_404(sa.select(User).where(User.login == username))
+    posts = [
+        {'author': user, 'body': 'Test post #1'},
+        {'author': user, 'body': 'Test post #2'}
+    ]
+    return render_template("profile.html", user=user, posts=posts)
